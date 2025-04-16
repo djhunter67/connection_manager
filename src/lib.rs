@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use std::collections::HashMap;
 
+use config::Value;
 use reqwest::header::HeaderName;
 use serde::Deserialize;
 
@@ -135,9 +136,22 @@ pub fn get_poco_config(uri: &str) -> Result<PocoConfig, Box<dyn std::error::Erro
     if response.status().is_success() {
         let poco_config: PocoConfig = match serde_json::from_str(&response.text()?) {
             Ok(config) => config,
-            Err(e) => {
-                eprintln!("Failed to deserialize JSON: {}", e);
-                return Err(e.into());
+            Err(err) => {
+                eprintln!("Failed to deserialize JSON: {err}");
+                eprintln!(
+                    "Failed config: {:#?}",
+                    serde_json::from_str::<Value>(
+                        client
+                            .get(uri)
+                            .send()?
+                            .text()?
+                            .as_str()
+                            .get(..60)
+                            .unwrap_or_default()
+                    )
+                    .unwrap_or_default()
+                );
+                return Err(err.into());
             }
         };
         Ok(poco_config)

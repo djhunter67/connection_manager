@@ -9,6 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // println!("mDns scan results: {:#?}", scan_results.unwrap());
 
+    // External library for mDNS scanning
     let pocos_ip: Vec<String> = mdns_scan()?
         .iter()
         .filter(|poco_scan_res| poco_scan_res.name().contains("poco"))
@@ -26,6 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let return_val: Arc<Mutex<Vec<PocoConfig>>> = Arc::new(Mutex::new(Vec::new()));
 
+    // Internal library for getting the PocoConfig
     pocos_ip.into_par_iter().for_each(|uri| {
         let uri = format!("http://{}{}", uri, ENDPOINT);
         return_val
