@@ -1,20 +1,33 @@
 use std::sync::{Arc, Mutex};
 
 use connection_manager::{PocoConfig, get_poco_config};
+use mdns_scanner::mdns_scan;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-// use mdns_scanner
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    const URI: [&str; 2] = ["http://192.168.33.206", "http://192.168.33.239"];
+    // let scan_results = mdns_scan();
+
+    // println!("mDns scan results: {:#?}", scan_results.unwrap());
+
+    let pocos_ip: Vec<String> = mdns_scan()?
+        .iter()
+        .filter(|poco_scan_res| poco_scan_res.name().contains("poco"))
+        .map(|poco_scan_res| {
+            println!("Name: {}", poco_scan_res.name());
+            println!("Address: {}", poco_scan_res.address());
+            poco_scan_res.address()
+        })
+        .collect();
+
     const ENDPOINT: &str = "/cfg/confc.json";
     // let ws: String = format!("ws://{}/websocket/ws.cgi", URI);
 
-    println!("URI connection strings: {:#?}", URI.to_vec());
+    println!("Poco IPs: {:#?}", pocos_ip);
 
     let return_val: Arc<Mutex<Vec<PocoConfig>>> = Arc::new(Mutex::new(Vec::new()));
 
-    URI.into_par_iter().for_each(|uri| {
-        let uri = format!("{}{}", uri, ENDPOINT);
+    pocos_ip.into_par_iter().for_each(|uri| {
+        let uri = format!("http://{}{}", uri, ENDPOINT);
         return_val
             .lock()
             .unwrap()
