@@ -1,17 +1,16 @@
 [package]
-name = "connection_barrage"
+name = "connection_manager"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
 path = "src/lib.rs"
-name = "connection_barrage"
+name = "connection_manager"
 
 [[bin]]
 path = "src/main.rs"
-name = "connection_barrage"   
+name = "connection_manager"   
    
-
 [dependencies]
 reqwest = { version = "0.12.15", features = ["blocking"] }
 mdns_scanner = { path = "../mdns_scanner" }

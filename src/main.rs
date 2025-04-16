@@ -1,7 +1,8 @@
 use std::sync::{Arc, Mutex};
 
-use connection_barrage::{PocoConfig, get_poco_config};
-use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator, ParallelIterator};
+use connection_manager::{PocoConfig, get_poco_config};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
+// use mdns_scanner
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     const URI: [&str; 2] = ["http://192.168.33.206", "http://192.168.33.239"];
@@ -30,14 +31,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             });
     });
 
-    return_val
-        .lock()
-        .unwrap()
-        .par_iter()
-        .for_each(|poco_config| {
-            println!("PocoConfig schema: {}", poco_config.schema);
-            println!("PocoConfig compat: {}", poco_config.compat);
-        });
+    return_val.lock().unwrap().iter().for_each(|poco_config| {
+        println!("PocoConfig schema: {}", poco_config.schema);
+        println!("PocoConfig compat: {}", poco_config.compat);
+    });
 
     Ok(())
 }
